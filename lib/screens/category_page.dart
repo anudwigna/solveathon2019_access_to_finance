@@ -56,6 +56,8 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
@@ -77,44 +79,26 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
           backgroundColor: Configuration().appColor,
           drawer: MyDrawer(),
           appBar: AppBar(
-            title: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              AdaptiveText(
-                'Categories',
-                style: TextStyle(fontSize: 17),
-              ),
-              Text(
-                ' (',
-                style: TextStyle(fontSize: 17),
-              ),
-              AdaptiveText(
-                selectedSubSector.toString(),
-                style: TextStyle(fontSize: 17),
-              ),
-              Text(
-                ')',
-                style: TextStyle(fontSize: 17),
-              ),
-            ]),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                AdaptiveText('Categories', style: TextStyle(fontSize: 17)),
+                Text(' (', style: TextStyle(fontSize: 17)),
+                AdaptiveText(selectedSubSector.toString(), style: TextStyle(fontSize: 17)),
+                Text(')', style: TextStyle(fontSize: 17)),
+              ],
+            ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              if ((await showDialog(
-                    context: context,
-                    builder: (context) => Consumer<PreferenceProvider>(
-                      builder: (context, value, child) => CategoryDialog(
-                        isCashIn: _tabController!.index == 0,
-                      ),
-                    ),
-                  )) ??
+              if ((await showDialog(context: context, builder: (context) => Consumer<PreferenceProvider>(builder: (context, value, child) => CategoryDialog(isCashIn: _tabController!.index == 0)))) ??
                   false) {
                 setState(() {});
               }
             },
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 27,
-            ),
+            child: Icon(Icons.add, color: Colors.white, size: 27),
             backgroundColor: Configuration().incomeColor,
           ),
           body: Padding(
@@ -126,48 +110,31 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
                 children: <Widget>[
                   TabBar(
                     isScrollable: true,
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: Configuration().incomeColor,
-                    ),
+                    indicator: BoxDecoration(borderRadius: BorderRadius.circular(50), color: Configuration().incomeColor),
                     controller: _tabController,
                     unselectedLabelColor: Colors.black,
                     labelColor: Colors.white,
                     tabs: [
                       Tab(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-                          child: AdaptiveText(
-                            'Cash In',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0), child: AdaptiveText('Cash In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
                       ),
                       Tab(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                          child: AdaptiveText(
-                            'Cash Out',
-                            style: TextStyle(fontFamily: 'Source Sans Pro', fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                          child: AdaptiveText('Cash Out', style: TextStyle(fontFamily: 'Source Sans Pro', fontSize: 16, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: ScreenSizeConfig.blockSizeVertical * 5,
-                  ),
+                  SizedBox(height: ScreenSizeConfig.blockSizeVertical * 5),
                   Expanded(
                     child: TabBarView(
                       controller: _tabController,
-                      children: [CategoryType.INCOME, CategoryType.EXPENSE]
-                          .map(
-                            (categoryType) => _reorderableListView(
-                              categoryType == CategoryType.EXPENSE ? globals.expenseCategories! : globals.incomeCategories!,
-                              categoryType,
-                            ),
-                          )
-                          .toList(),
+                      children:
+                          [
+                            CategoryType.INCOME,
+                            CategoryType.EXPENSE,
+                          ].map((categoryType) => _reorderableListView(categoryType == CategoryType.EXPENSE ? globals.expenseCategories! : globals.incomeCategories!, categoryType)).toList(),
                     ),
                   ),
                 ],
@@ -225,25 +192,13 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
                                   children: <Widget>[
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        VectorIcons.fromName(
-                                          categories.iconName,
-                                          provider: IconProvider.FontAwesome5,
-                                        ),
-                                        color: Configuration().incomeColor,
-                                        size: 20.0,
-                                      ),
+                                      child: Icon(VectorIcons.fromName(categories.iconName, provider: IconProvider.FontAwesome5), color: Configuration().incomeColor, size: 20.0),
                                     ),
                                     Flexible(
                                       child: AdaptiveText(
                                         '',
                                         category: categories,
-                                        style: TextStyle(
-                                          fontFamily: 'SourceSansPro',
-                                          fontSize: 15,
-                                          color: const Color(0xff272b37),
-                                          height: 1.4285714285714286,
-                                        ),
+                                        style: TextStyle(fontFamily: 'SourceSansPro', fontSize: 15, color: const Color(0xff272b37), height: 1.4285714285714286),
                                       ),
                                     ),
                                   ],
@@ -253,20 +208,11 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
                                   onTap: () async {
                                     var categoryList = await CategoryService().getCategories(selectedSubSector!, type);
                                     if (!categoryList.contains(categories)) {
-                                      await CategoryService().addCategory(
-                                        selectedSubSector!,
-                                        categories,
-                                        type: type,
-                                        isStockCategory: true,
-                                      );
+                                      await CategoryService().addCategory(selectedSubSector!, categories, type: type, isStockCategory: true);
                                       setState(() {});
                                     }
                                   },
-                                  child: Icon(
-                                    Icons.add_circle,
-                                    size: 30.0,
-                                    color: Color(0xffB581F6),
-                                  ),
+                                  child: Icon(Icons.add_circle, size: 30.0, color: Color(0xffB581F6)),
                                 ),
                               ),
                             ),
@@ -274,18 +220,12 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
                         );
                       },
                     ),
-                    SizedBox(
-                      height: 40,
-                    )
+                    SizedBox(height: 40),
                   ],
                 );
-              return SizedBox(
-                height: 1,
-              );
+              return SizedBox(height: 1);
             } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+              return Center(child: CircularProgressIndicator());
             }
           },
         ),
@@ -312,45 +252,23 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: FutureBuilder<CategoryHeading?>(
-                            future: CategoryHeadingService()
-                                .getCategoryHeadingById(categoryType, categories[i].categoryHeadingId == null ? (categoryType == CategoryType.INCOME ? 100 : 1) : categories[i].categoryHeadingId),
+                            future: CategoryHeadingService().getCategoryHeadingById(
+                              categoryType,
+                              categories[i].categoryHeadingId == null ? (categoryType == CategoryType.INCOME ? 100 : 1) : categories[i].categoryHeadingId,
+                            ),
                             builder: (BuildContext context, AsyncSnapshot<CategoryHeading?> snapshot) {
                               return (!snapshot.hasData)
-                                  ? Icon(
-                                      VectorIcons.fromName(
-                                        'hornbill',
-                                        provider: IconProvider.FontAwesome5,
-                                      ),
-                                      color: Configuration().incomeColor,
-                                      size: 20.0,
-                                    )
+                                  ? Icon(VectorIcons.fromName('hornbill', provider: IconProvider.FontAwesome5), color: Configuration().incomeColor, size: 20.0)
                                   : SvgPicture.asset('assets/images/${snapshot.data!.iconName}');
                             },
                           ),
                         ),
                         Flexible(
-                          child: AdaptiveText(
-                            '',
-                            category: categories[i],
-                            style: TextStyle(
-                              fontFamily: 'SourceSansPro',
-                              fontSize: 14,
-                              color: const Color(0xff272b37),
-                              height: 1.4285714285714286,
-                            ),
-                          ),
+                          child: AdaptiveText('', category: categories[i], style: TextStyle(fontFamily: 'SourceSansPro', fontSize: 14, color: const Color(0xff272b37), height: 1.4285714285714286)),
                         ),
                       ],
                     ),
-                    trailing: InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () => _showDeleteDialog(categories[i].id),
-                      child: Icon(
-                        Icons.remove_circle,
-                        size: 30.0,
-                        color: Color(0xffB581F6),
-                      ),
-                    ),
+                    trailing: InkWell(splashColor: Colors.transparent, onTap: () => _showDeleteDialog(categories[i].id), child: Icon(Icons.remove_circle, size: 30.0, color: Color(0xffB581F6))),
                   ),
                 ),
               ),
@@ -363,13 +281,18 @@ class _CategoryPageState extends State<CategoryPage> with SingleTickerProviderSt
   }
 
   Future _showDeleteDialog(int? categoryId) async {
-    await showDeleteDialog(context, title: 'Delete Category', description: '''Are you sure you want to delete this category? Deleting the category will also clear all the records related to it.''',
-        onDeletePress: () async {
-      await CategoryService().deleteCategory(selectedSubSector!, categoryId, _tabController!.index == 0 ? CategoryType.INCOME : CategoryType.EXPENSE, false);
-      Navigator.of(context, rootNavigator: true).pop(true);
-    }, onCancelPress: () {
-      Navigator.of(context, rootNavigator: true).pop(false);
-    }).then((value) {
+    await showDeleteDialog(
+      context,
+      title: 'Delete Category',
+      description: '''Are you sure you want to delete this category? Deleting the category will also clear all the records related to it.''',
+      onDeletePress: () async {
+        await CategoryService().deleteCategory(selectedSubSector!, categoryId, _tabController!.index == 0 ? CategoryType.INCOME : CategoryType.EXPENSE, false);
+        Navigator.of(context, rootNavigator: true).pop(true);
+      },
+      onCancelPress: () {
+        Navigator.of(context, rootNavigator: true).pop(false);
+      },
+    ).then((value) {
       if (value ?? false) {
         setState(() {});
       }
@@ -452,39 +375,19 @@ class _CategoryDialogState extends State<CategoryDialog> {
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              SvgPicture.string(
-                                userLogo,
-                                allowDrawingOutsideViewBox: true,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              AdaptiveText(
-                                'Category Heading',
-                                style: TextStyle(
-                                  fontFamily: 'SourceSansPro',
-                                  fontSize: 16,
-                                  color: const Color(0xff43425d),
-                                  height: 1.5625,
-                                ),
-                              )
+                              SvgPicture.string(userLogo, allowDrawingOutsideViewBox: true),
+                              SizedBox(width: 5),
+                              AdaptiveText('Category Heading', style: TextStyle(fontFamily: 'SourceSansPro', fontSize: 16, color: const Color(0xff43425d), height: 1.5625)),
                             ],
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          SizedBox(height: 5),
                           Container(
                             width: double.maxFinite,
                             padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
+                            decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8.0)),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButtonFormField(
-                                decoration: InputDecoration.collapsed(
-                                  hintText: '',
-                                ),
+                                decoration: InputDecoration.collapsed(hintText: ''),
                                 validator: (dynamic value) {
                                   if (categoryHeadingId == null) return language == Lang.EN ? 'Category Heading cannot be empty' : 'श्रेणी शीर्षक खाली हुन सक्दैन';
                                   return null;
@@ -496,22 +399,20 @@ class _CategoryDialogState extends State<CategoryDialog> {
                                 isExpanded: true,
                                 isDense: false,
                                 style: TextStyle(color: Colors.black, fontSize: 17.0),
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.grey,
-                                ),
-                                items: (categoryHeading ?? [])
-                                    .map((heading) => DropdownMenuItem(
-                                          child: dropDownMenuBuilder(
-                                              VectorIcons.fromName(
-                                                'hornbill',
-                                                provider: IconProvider.FontAwesome5,
-                                              ),
+                                icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                                items:
+                                    (categoryHeading ?? [])
+                                        .map(
+                                          (heading) => DropdownMenuItem(
+                                            child: dropDownMenuBuilder(
+                                              VectorIcons.fromName('hornbill', provider: IconProvider.FontAwesome5),
                                               language == Lang.EN ? heading.en : heading.np,
-                                              iconBuilderWidget: SvgPicture.asset('assets/images/' + heading.iconName!)),
-                                          value: heading.id,
-                                        ))
-                                    .toList(),
+                                              iconBuilderWidget: SvgPicture.asset('assets/images/' + heading.iconName!),
+                                            ),
+                                            value: heading.id,
+                                          ),
+                                        )
+                                        .toList(),
                                 onChanged: (dynamic value) {
                                   setState(() {
                                     categoryHeadingId = value;
@@ -520,45 +421,22 @@ class _CategoryDialogState extends State<CategoryDialog> {
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: 15,
-                          ),
+                          SizedBox(height: 15),
                           Row(
                             children: <Widget>[
-                              SvgPicture.string(
-                                userLogo,
-                                allowDrawingOutsideViewBox: true,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              AdaptiveText(
-                                'Category Name',
-                                style: TextStyle(
-                                  fontFamily: 'SourceSansPro',
-                                  fontSize: 16,
-                                  color: const Color(0xff43425d),
-                                  height: 1.5625,
-                                ),
-                              ),
+                              SvgPicture.string(userLogo, allowDrawingOutsideViewBox: true),
+                              SizedBox(width: 5),
+                              AdaptiveText('Category Name', style: TextStyle(fontFamily: 'SourceSansPro', fontSize: 16, color: const Color(0xff43425d), height: 1.5625)),
                             ],
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          SizedBox(height: 5),
                           Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
+                            decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8.0)),
                             child: TextFormField(
                               validator: validator,
                               controller: categoryName,
                               style: TextStyle(color: Colors.grey[800], fontSize: 20.0),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.all(10),
-                              ),
+                              decoration: InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(10)),
                             ),
                           ),
                         ],
@@ -578,18 +456,9 @@ class _CategoryDialogState extends State<CategoryDialog> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(
-                            Icons.add,
-                            size: 20,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          AdaptiveText(
-                            'Add' + ' ' + (widget.isCashIn! ? 'Cash In' : 'Cash Out'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 17.0),
-                          ),
+                          Icon(Icons.add, size: 20),
+                          SizedBox(width: 5),
+                          AdaptiveText('Add' + ' ' + (widget.isCashIn! ? 'Cash In' : 'Cash Out'), textAlign: TextAlign.center, style: TextStyle(fontSize: 17.0)),
                         ],
                       ),
                     ),

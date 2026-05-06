@@ -64,6 +64,8 @@ class _BackUpPageState extends State<BackUpPage> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
@@ -82,97 +84,85 @@ class _BackUpPageState extends State<BackUpPage> with WidgetsBindingObserver {
       key: _scaffoldKey,
       backgroundColor: Configuration().appColor,
       drawer: MyDrawer(),
-      appBar: AppBar(
-        title: AdaptiveText('Backup'),
-      ),
+      appBar: AppBar(title: AdaptiveText('Backup')),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
-          child: Icon(
-            MdiIcons.cloudUploadOutline,
-            size: 28,
-            color: Configuration().appColor,
-          ),
-          onPressed: () async {
-            if (isCreating) return;
-            final canPerformBackup = await UserService().canPerformBackUp();
-            if (!(canPerformBackup)) {
-              showAlertDialog();
-              return;
+        backgroundColor: Colors.white,
+        child: Icon(MdiIcons.cloudUploadOutline, size: 28, color: Configuration().appColor),
+        onPressed: () async {
+          if (isCreating) return;
+          final canPerformBackup = await UserService().canPerformBackUp();
+          if (!(canPerformBackup)) {
+            showAlertDialog();
+            return;
+          }
+          ActivityTracker().otherActivityOnPage(PageName.backupPage, 'Pressed Backup Button', 'Floating Action Button', 'Floating Action Button');
+          isCreating = true;
+          final callback = await checkPermission(_scaffoldKey);
+          if (callback) {
+            ProgressDialog pr = ProgressDialog(context, isDismissible: false);
+            pr.style(child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.blue))), message: language == Lang.EN ? 'Synchronizing Data' : 'समिकरण भइरहेको छ');
+            await pr.show();
+            try {
+              await createBackup(subSector!, language);
+              pr.hide();
+              showErrorDialog('Data has been backup successfully', 'Success');
+            } catch (e) {
+              pr.hide();
+              showErrorDialog('Error Performing Backup, ' + e.toString(), null);
             }
-            ActivityTracker().otherActivityOnPage(PageName.backupPage, 'Pressed Backup Button', 'Floating Action Button', 'Floating Action Button');
-            isCreating = true;
-            final callback = await checkPermission(
-              _scaffoldKey,
-            );
-            if (callback) {
-              ProgressDialog pr = ProgressDialog(context, isDismissible: false);
-              pr.style(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  ),
-                  message: language == Lang.EN ? 'Synchronizing Data' : 'समिकरण भइरहेको छ');
-              await pr.show();
-              try {
-                await createBackup(subSector!, language);
-                pr.hide();
-                showErrorDialog('Data has been backup successfully', 'Success');
-              } catch (e) {
-                pr.hide();
-                showErrorDialog('Error Performing Backup, ' + e.toString(), null);
-              }
-              backupFile.deleteSync(recursive: true);
-            }
-            isCreating = false;
-          }),
+            backupFile.deleteSync(recursive: true);
+          }
+          isCreating = false;
+        },
+      ),
       body: Center(
         child: FutureBuilder<String?>(
-            future: PreferenceService.instance.getLastBackUpDate(),
-            builder: (context, snapshot) => snapshot.hasData
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AdaptiveText(
-                        'Last Backup on',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(
-                        height: 3,
-                      ),
-                      Text(
-                        NepaliDateFormat("MMMM dd, y (EEE)", language == Lang.EN ? Language.english : Language.nepali).format(
-                          DateTime.parse(snapshot.data!).toNepaliDateTime(),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: AdaptiveText(
-                    'No Backup Found',
-                    style: TextStyle(fontSize: 16),
-                  ))),
+          future: PreferenceService.instance.getLastBackUpDate(),
+          builder:
+              (context, snapshot) =>
+                  snapshot.hasData
+                      ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AdaptiveText('Last Backup on', style: TextStyle(fontSize: 16)),
+                          SizedBox(height: 3),
+                          Text(
+                            NepaliDateFormat("MMMM dd, y (EEE)", language == Lang.EN ? Language.english : Language.nepali).format(DateTime.parse(snapshot.data!).toNepaliDateTime()),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      )
+                      : Center(child: AdaptiveText('No Backup Found', style: TextStyle(fontSize: 16))),
+        ),
       ),
     );
   }
 
   showAlertDialog() {
-    showDeleteDialog(context, hideCancel: true, deleteButtonText: 'Go To Profile', description: 'You have to create account to create backup, Please create account and try again.', onDeletePress: () {
-      Navigator.of(context, rootNavigator: true).pop();
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        profilePage,
-        ModalRoute.withName(home),
-      );
-    });
+    showDeleteDialog(
+      context,
+      hideCancel: true,
+      deleteButtonText: 'Go To Profile',
+      description: 'You have to create account to create backup, Please create account and try again.',
+      onDeletePress: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.pushNamedAndRemoveUntil(context, profilePage, ModalRoute.withName(home));
+      },
+    );
   }
 
   showErrorDialog(String descritpion, String? title) {
-    showDeleteDialog(context, title: title, hideCancel: true, deleteButtonText: 'Okay    ', description: descritpion, onDeletePress: () {
-      Navigator.of(context, rootNavigator: true).pop();
-    });
+    showDeleteDialog(
+      context,
+      title: title,
+      hideCancel: true,
+      deleteButtonText: 'Okay    ',
+      description: descritpion,
+      onDeletePress: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
   }
 
   Future<void> createBackup(String subSector, Lang language) async {
@@ -188,9 +178,7 @@ class _BackUpPageState extends State<BackUpPage> with WidgetsBindingObserver {
         UserService().closeDatabase(subSector),
       ]);
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: language == Lang.EN ? 'Error Creating Backup, Please Try Again' : 'कृपया फेरि प्रयास गर्नुहोस्',
-      );
+      Fluttertoast.showToast(msg: language == Lang.EN ? 'Error Creating Backup, Please Try Again' : 'कृपया फेरि प्रयास गर्नुहोस्');
       return;
     }
 
@@ -212,9 +200,7 @@ class _BackUpPageState extends State<BackUpPage> with WidgetsBindingObserver {
       backupFile = File(newzipPath);
       final sizeInKB = value.lengthSync() / 1024;
       double sizeinMB = sizeInKB / 1024;
-      Fluttertoast.showToast(
-        msg: 'Backup File has been Created of: ' + (sizeInKB > 1024 ? sizeinMB.toStringAsFixed(2) + ' MB' : sizeInKB.toStringAsFixed(2) + ' KB'),
-      );
+      Fluttertoast.showToast(msg: 'Backup File has been Created of: ' + (sizeInKB > 1024 ? sizeinMB.toStringAsFixed(2) + ' MB' : sizeInKB.toStringAsFixed(2) + ' KB'));
       await HttpService().backupData(value);
       PreferenceService.instance.setLastBackUpDate().then((value) {
         setState(() {});

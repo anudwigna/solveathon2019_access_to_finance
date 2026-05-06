@@ -23,15 +23,7 @@ class MunshiG extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PreferenceProvider>(
       create: ((context) => PreferenceProvider()),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'MunshiG',
-        theme: themeData,
-        routes: {
-          '/': (context) => SplashScreen(),
-          wrapper: (context) => WrapperPage(),
-        },
-      ),
+      child: MaterialApp(debugShowCheckedModeBanner: false, title: 'MunshiG', theme: themeData, routes: {'/': (context) => SplashScreen(), wrapper: (context) => WrapperPage()}),
     );
   }
 }
@@ -39,40 +31,26 @@ class MunshiG extends StatelessWidget {
 final ThemeData themeData = ThemeData(
   fontFamily: 'SourceSansPro',
   brightness: Brightness.dark,
-  appBarTheme: AppBarTheme(
-    color: Colors.transparent,
-    elevation: 0,
-  ),
-  inputDecorationTheme: InputDecorationTheme(
-    errorStyle: TextStyle(fontSize: 12.0, color: Colors.red),
-  ),
+  appBarTheme: AppBarTheme(backgroundColor: Colors.transparent, elevation: 0),
+  inputDecorationTheme: InputDecorationTheme(errorStyle: TextStyle(fontSize: 12.0, color: Colors.red)),
   scaffoldBackgroundColor: Colors.transparent,
   canvasColor: Colors.white,
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(double.maxFinite, 46)),
-      shape: MaterialStateProperty.resolveWith(
-        (states) => RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      textStyle: MaterialStateProperty.resolveWith((states) => TextStyle(color: Colors.white)),
-      backgroundColor: MaterialStateProperty.resolveWith((states) => Configuration().incomeColor),
+      minimumSize: WidgetStateProperty.resolveWith((states) => Size(double.maxFinite, 46)),
+      shape: WidgetStateProperty.resolveWith((states) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+      textStyle: WidgetStateProperty.resolveWith((states) => TextStyle(color: Colors.white)),
+      backgroundColor: WidgetStateProperty.resolveWith((states) => Configuration().incomeColor),
     ),
   ),
-  tabBarTheme: TabBarTheme(
-      indicator: BoxDecoration(
-    borderRadius: BorderRadius.circular(100),
-    color: Configuration().incomeColor,
-  )),
+  tabBarTheme: TabBarThemeData(indicator: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Configuration().incomeColor)),
   buttonTheme: ButtonThemeData(
-      minWidth: double.maxFinite,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      buttonColor: Configuration().incomeColor,
-      height: 55,
-      textTheme: ButtonTextTheme.normal),
+    minWidth: double.maxFinite,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    buttonColor: Configuration().incomeColor,
+    height: 55,
+    textTheme: ButtonTextTheme.normal,
+  ),
 );
 
 class WrapperPage extends StatefulWidget {

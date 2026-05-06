@@ -18,18 +18,13 @@ class HttpService {
 
   Future<dynamic> _postFormData(String url, FormData formData) async {
     Dio dio = Dio();
-    dio.options = BaseOptions(
-      baseUrl: 'http://munsiji.qubexedu.com/',
-    );
+    dio.options = BaseOptions(baseUrl: 'http://munsiji.qubexedu.com/');
 
     late Response response;
     try {
-      response = await dio.post(
-        'http://munsiji.qubexedu.com/' + url,
-        data: formData,
-      );
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.response)
+      response = await dio.post('http://munsiji.qubexedu.com/' + url, data: formData);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.unknown)
         throw (e.response?.data ?? 'Error');
       else
         throw ('No Internet Connection or Server Offline');

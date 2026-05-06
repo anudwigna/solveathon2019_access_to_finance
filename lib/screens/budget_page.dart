@@ -66,6 +66,8 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
@@ -100,10 +102,7 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
       backgroundColor: Configuration().appColor,
       drawer: MyDrawer(),
       appBar: AppBar(
-        title: AdaptiveText(
-          'Cash ' + (isInflow ? 'Inflow' : 'Outflow') + ' Projection',
-          style: TextStyle(fontSize: 17),
-        ),
+        title: AdaptiveText('Cash ' + (isInflow ? 'Inflow' : 'Outflow') + ' Projection', style: TextStyle(fontSize: 17)),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -111,25 +110,14 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
             for (int index = 0; index < noOfmonths; index++)
               Tab(
                 child: Text(
-                  NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(
-                    NepaliDateTime(_dateResolver[index].year, _dateResolver[index].month),
-                  ),
+                  NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime(_dateResolver[index].year, _dateResolver[index].month)),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          for (int month = 0; month < noOfmonths; month++)
-            _buildBody(
-              _dateResolver[month].month,
-              _dateResolver[month].year,
-            ),
-        ],
-      ),
+      body: TabBarView(controller: _tabController, children: [for (int month = 0; month < noOfmonths; month++) _buildBody(_dateResolver[month].month, _dateResolver[month].year)]),
     );
   }
 
@@ -145,17 +133,7 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: AdaptiveText(
-                  selectedSubSector!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: const Color(0xff1e1e1e),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
+              Padding(padding: const EdgeInsets.only(left: 20), child: AdaptiveText(selectedSubSector!, style: TextStyle(fontSize: 16, color: const Color(0xff1e1e1e), fontWeight: FontWeight.w700))),
               Expanded(
                 child: FutureBuilder<List<Category>>(
                   future: CategoryService().getCategories(selectedSubSector!, isInflow ? CategoryType.INCOME : CategoryType.EXPENSE),
@@ -163,22 +141,18 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
                     if (snapshot.hasData) {
                       return ListView.separated(
                         itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) => Padding(
-                          padding: EdgeInsets.only(
-                            top: index == 0 ? 10 : 0,
-                            bottom: index == snapshot.data!.length - 1 ? 30 : 0,
-                          ),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey.withOpacity(0.7))),
-                            child: _buildCard(snapshot.data![index], month, year),
-                          ),
-                        ),
+                        itemBuilder:
+                            (context, index) => Padding(
+                              padding: EdgeInsets.only(top: index == 0 ? 10 : 0, bottom: index == snapshot.data!.length - 1 ? 30 : 0),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey.withOpacity(0.7))),
+                                child: _buildCard(snapshot.data![index], month, year),
+                              ),
+                            ),
                         separatorBuilder: (context, _) => SizedBox(height: 20.0),
                       );
                     } else
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Center(child: CircularProgressIndicator());
                   },
                 ),
               ),
@@ -205,23 +179,11 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
                     _clearBudgetDialog(snapshot.data, category);
                   }
                 },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 1,
-                    child: AdaptiveText(
-                      snapshot.data!.spent == null ? 'Set Budget' : 'Update Budget',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                  ),
-                  if (snapshot.data!.spent != null)
-                    PopupMenuItem(
-                      value: 2,
-                      child: AdaptiveText(
-                        'Clear Budget',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                    ),
-                ],
+                itemBuilder:
+                    (context) => [
+                      PopupMenuItem(value: 1, child: AdaptiveText(snapshot.data!.spent == null ? 'Set Budget' : 'Update Budget', style: TextStyle(color: Colors.grey[700]))),
+                      if (snapshot.data!.spent != null) PopupMenuItem(value: 2, child: AdaptiveText('Clear Budget', style: TextStyle(color: Colors.grey[700]))),
+                    ],
                 child: Padding(
                   padding: EdgeInsets.only(left: 15, right: 15.0, top: 13, bottom: 13),
                   child: Row(
@@ -229,18 +191,13 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       FutureBuilder<CategoryHeading?>(
-                        future: CategoryHeadingService().getCategoryHeadingById(widget.isInflowProjection! ? CategoryType.INCOME : CategoryType.EXPENSE,
-                            category.categoryHeadingId == null ? (widget.isInflowProjection! ? 100 : 1) : category.categoryHeadingId),
+                        future: CategoryHeadingService().getCategoryHeadingById(
+                          widget.isInflowProjection! ? CategoryType.INCOME : CategoryType.EXPENSE,
+                          category.categoryHeadingId == null ? (widget.isInflowProjection! ? 100 : 1) : category.categoryHeadingId,
+                        ),
                         builder: (BuildContext context, AsyncSnapshot<CategoryHeading?> snapshot1) {
                           return (!snapshot1.hasData)
-                              ? Icon(
-                                  VectorIcons.fromName(
-                                    'hornbill',
-                                    provider: IconProvider.FontAwesome5,
-                                  ),
-                                  color: Configuration().incomeColor,
-                                  size: 20.0,
-                                )
+                              ? Icon(VectorIcons.fromName('hornbill', provider: IconProvider.FontAwesome5), color: Configuration().incomeColor, size: 20.0)
                               : SvgPicture.asset('assets/images/${snapshot1.data!.iconName}');
                         },
                       ),
@@ -250,11 +207,7 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            AdaptiveText(
-                              '',
-                              category: category,
-                              style: TextStyle(fontSize: 15.0, color: Colors.black),
-                            ),
+                            AdaptiveText('', category: category, style: TextStyle(fontSize: 15.0, color: Colors.black)),
                             SizedBox(height: 2.0),
                             AdaptiveText(
                               (snapshot.data!.total == null) ? 'Click to set budget' : 'Click to update budget',
@@ -267,22 +220,8 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
-                          Text(
-                            nepaliNumberFormatter(snapshot.data!.spent ?? 0) + '/',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Configuration().incomeColor,
-                            ),
-                          ),
-                          Text(
-                            nepaliNumberFormatter(snapshot.data!.total ?? 0),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Configuration().incomeColor,
-                            ),
-                          ),
+                          Text(nepaliNumberFormatter(snapshot.data!.spent ?? 0) + '/', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Configuration().incomeColor)),
+                          Text(nepaliNumberFormatter(snapshot.data!.total ?? 0), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Configuration().incomeColor)),
                         ],
                       ),
                     ],
@@ -310,26 +249,23 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
   }
 
   void _clearBudgetDialog(Budget? budget, Category category) {
-    showDeleteDialog(context,
-            description: language == Lang.EN ? 'Are you sure to clear the budget for ${category.en}?' : 'के तपाई ${category.np}को लागि बजेट खाली गर्न निश्चित हुनुहुन्छ?',
-            title: 'Clear Budget', onDeletePress: () async {
-      if (await TransactionService().isBudgetEditable(selectedSubSector!, budget!.categoryId, budget.month, budget.year)) {
-        await BudgetService().clearBudget(selectedSubSector!, budget, false);
-        Navigator.of(context, rootNavigator: true).pop(true);
-      } else {
-        Navigator.of(context, rootNavigator: true).pop(false);
-        ScaffoldMessenger.of(_scaffoldKey.currentState!.context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: AdaptiveText(
-              'Budget cannot be cleared as it is in use.',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      }
-    }, deleteButtonText: 'Clear  ')
-        .then((value) {
+    showDeleteDialog(
+      context,
+      description: language == Lang.EN ? 'Are you sure to clear the budget for ${category.en}?' : 'के तपाई ${category.np}को लागि बजेट खाली गर्न निश्चित हुनुहुन्छ?',
+      title: 'Clear Budget',
+      onDeletePress: () async {
+        if (await TransactionService().isBudgetEditable(selectedSubSector!, budget!.categoryId, budget.month, budget.year)) {
+          await BudgetService().clearBudget(selectedSubSector!, budget, false);
+          Navigator.of(context, rootNavigator: true).pop(true);
+        } else {
+          Navigator.of(context, rootNavigator: true).pop(false);
+          ScaffoldMessenger.of(
+            _scaffoldKey.currentState!.context,
+          ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: AdaptiveText('Budget cannot be cleared as it is in use.', style: TextStyle(color: Colors.white))));
+        }
+      },
+      deleteButtonText: 'Clear  ',
+    ).then((value) {
       if (value ?? false) {
         setState(() {});
       }
@@ -354,16 +290,15 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
       bodyWidget: Form(
         key: _formKey,
         child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.withOpacity(0.7)),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.7)), borderRadius: BorderRadius.circular(8.0)),
           child: TextFormField(
-            validator: (value) => value!.length == 0
-                ? language == Lang.EN
-                    ? 'Amount Cannot be empty'
-                    : 'रकम खाली हुनसक्दैन '
-                : null,
+            validator:
+                (value) =>
+                    value!.length == 0
+                        ? language == Lang.EN
+                            ? 'Amount Cannot be empty'
+                            : 'रकम खाली हुनसक्दैन '
+                        : null,
             controller: _budgetAmountController,
             autofocus: true,
             keyboardType: TextInputType.number,
@@ -388,34 +323,24 @@ class _BudgetPageState extends State<BudgetPage> with SingleTickerProviderStateM
   Future<bool> _setBudget(Budget? oldBudgetData, int? categoryId, int year, int month, {String action = 'set'}) async {
     if (action == 'set') {
       await BudgetService().updateBudget(
-          selectedSubSector,
-          Budget(
-            categoryId: oldBudgetData!.categoryId ?? categoryId,
-            month: oldBudgetData.month ?? month,
-            spent: '0',
-            year: oldBudgetData.year ?? year,
-            total: _budgetAmountController.text,
-          ),
-          false);
+        selectedSubSector,
+        Budget(categoryId: oldBudgetData!.categoryId ?? categoryId, month: oldBudgetData.month ?? month, spent: '0', year: oldBudgetData.year ?? year, total: _budgetAmountController.text),
+        false,
+      );
       return true;
     } else {
       int amount = int.tryParse(_budgetAmountController.text) ?? 0;
-      String? spentString = (await BudgetService().getBudget(selectedSubSector!, categoryId, oldBudgetData!.month ?? month, oldBudgetData.year ?? year))
-
-          ///--------------change yearrrrr
-          .spent;
+      String? spentString =
+          (await BudgetService().getBudget(selectedSubSector!, categoryId, oldBudgetData!.month ?? month, oldBudgetData.year ?? year))
+              ///--------------change yearrrrr
+              .spent;
       // int spent = int.tryParse(spentString ?? '0') ?? 0;
       // if (amount > spent) {
       await BudgetService().updateBudget(
-          selectedSubSector,
-          Budget(
-            categoryId: oldBudgetData.categoryId ?? categoryId,
-            month: oldBudgetData.month ?? month,
-            year: oldBudgetData.year ?? year,
-            spent: spentString,
-            total: _budgetAmountController.text,
-          ),
-          false);
+        selectedSubSector,
+        Budget(categoryId: oldBudgetData.categoryId ?? categoryId, month: oldBudgetData.month ?? month, year: oldBudgetData.year ?? year, spent: spentString, total: _budgetAmountController.text),
+        false,
+      );
 
       return true;
       // } else {

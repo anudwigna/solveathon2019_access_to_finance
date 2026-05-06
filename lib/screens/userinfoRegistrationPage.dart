@@ -55,11 +55,12 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
       dateTime = widget.userData?.dob ?? null;
       emailController.text = widget.userData?.emailAddress ?? '';
       genderValue = widget.userData?.gender ?? null;
-      image = widget.userData?.image != null
-          ? fileExists(widget.userData!.image!)
-              ? File(widget.userData!.image!)
-              : null
-          : null;
+      image =
+          widget.userData?.image != null
+              ? fileExists(widget.userData!.image!)
+                  ? File(widget.userData!.image!)
+                  : null
+              : null;
       fnameController.text = widget.userData?.name?.split(' ').first ?? '';
       lnameController.text = widget.userData?.name?.split(' ').last ?? '';
       phoneNumberController.text = widget.userData?.phonenumber ?? '';
@@ -113,10 +114,7 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
       appBar: AppBar(
         elevation: 10,
         backgroundColor: Configuration().appColor,
-        title: AdaptiveText(
-          'Create Account',
-          style: TextStyle(fontSize: 17),
-        ),
+        title: AdaptiveText('Create Account', style: TextStyle(fontSize: 17)),
         centerTitle: true,
         actions: <Widget>[
           if (widget.userData == null)
@@ -131,15 +129,9 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                     addNewUser(User(phonenumber: phoneNumberController.text));
                   }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: AdaptiveText(
-                    'Skip',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
+                child: Padding(padding: const EdgeInsets.all(10.0), child: AdaptiveText('Skip', style: TextStyle(fontSize: 16))),
               ),
-            )
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -151,56 +143,41 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                 color: Colors.white,
                 shadowColor: Colors.black,
                 child: InkWell(
-                    onTap: () async {
-                      FocusScope.of(context).requestFocus(new FocusNode());
-                      bool callback = await checkPermission(_scaffoldKey);
-                      if (!callback) {
-                        return;
-                      }
-                      final img = await ImagePicker().getImage(source: ImageSource.gallery);
-                      if (img != null) {
-                        image = File(img.path);
-                        setState(() {});
-                      }
-                    },
-                    child: Container(
-                        width: double.maxFinite,
-                        height: ScreenSizeConfig.blockSizeVertical * 25,
-                        color: Colors.transparent,
-                        padding: EdgeInsets.symmetric(horizontal: ScreenSizeConfig.blockSizeVertical * 10, vertical: 20),
-                        child: SizedBox(
-                          width: double.maxFinite,
-                          child: (image != null)
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Image.file(
-                                    image!,
-                                    fit: BoxFit.contain,
-                                  ),
-                                )
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                    bool callback = await checkPermission(_scaffoldKey);
+                    if (!callback) {
+                      return;
+                    }
+                    final img = await ImagePicker().pickImage(source: ImageSource.gallery);
+                    if (img != null) {
+                      image = File(img.path);
+                      setState(() {});
+                    }
+                  },
+                  child: Container(
+                    width: double.maxFinite,
+                    height: ScreenSizeConfig.blockSizeVertical * 25,
+                    color: Colors.transparent,
+                    padding: EdgeInsets.symmetric(horizontal: ScreenSizeConfig.blockSizeVertical * 10, vertical: 20),
+                    child: SizedBox(
+                      width: double.maxFinite,
+                      child:
+                          (image != null)
+                              ? Padding(padding: const EdgeInsets.all(8.0), child: Image.file(image!, fit: BoxFit.contain))
                               : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.tag_faces,
-                                      size: ScreenSizeConfig.blockSizeVertical * 8,
-                                      color: Colors.black,
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    AdaptiveText(
-                                      'Add Your Photo\nHere',
-                                      style: TextStyle(fontSize: 16, color: Colors.black),
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
-                                ),
-                        ))),
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Icon(Icons.tag_faces, size: ScreenSizeConfig.blockSizeVertical * 8, color: Colors.black),
+                                  SizedBox(height: 10),
+                                  AdaptiveText('Add Your Photo\nHere', style: TextStyle(fontSize: 16, color: Colors.black), textAlign: TextAlign.center),
+                                ],
+                              ),
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(
-                height: 15,
-              ),
+              SizedBox(height: 15),
               Card(
                 color: Colors.white,
                 shadowColor: Colors.black,
@@ -213,44 +190,46 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                         Row(
                           children: <Widget>[
                             Expanded(
-                                child: bodyField(
-                              controller: fnameController,
-                              hintText: 'John',
-                              title: 'First Name',
-                              validator: (value) => value!.trim.call().isEmpty
-                                  ? language == Lang.EN
-                                      ? "First Name Required"
-                                      : 'पहिलो नाम आवाश्यक छ'
-                                  : null,
-                            )),
-                            SizedBox(
-                              width: ScreenSizeConfig.blockSizeVertical * 3.5,
+                              child: bodyField(
+                                controller: fnameController,
+                                hintText: 'John',
+                                title: 'First Name',
+                                validator:
+                                    (value) =>
+                                        value!.trim.call().isEmpty
+                                            ? language == Lang.EN
+                                                ? "First Name Required"
+                                                : 'पहिलो नाम आवाश्यक छ'
+                                            : null,
+                              ),
                             ),
+                            SizedBox(width: ScreenSizeConfig.blockSizeVertical * 3.5),
                             Expanded(
-                                child: bodyField(
-                                    title: 'Last Name',
-                                    hintText: 'Doe',
-                                    validator: (value) => value!.trim.call().isEmpty
-                                        ? language == Lang.EN
-                                            ? "Last Name Required"
-                                            : 'थरआवाश्यक छ'
-                                        : null,
-                                    controller: lnameController)),
+                              child: bodyField(
+                                title: 'Last Name',
+                                hintText: 'Doe',
+                                validator:
+                                    (value) =>
+                                        value!.trim.call().isEmpty
+                                            ? language == Lang.EN
+                                                ? "Last Name Required"
+                                                : 'थरआवाश्यक छ'
+                                            : null,
+                                controller: lnameController,
+                              ),
+                            ),
                           ],
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         bodyField(
-                            controller: phoneNumberController,
-                            textInputType: TextInputType.numberWithOptions(decimal: false, signed: false),
-                            hintText: '9818212123',
-                            title: 'Phone Number',
-                            maxlength: 10,
-                            validator: (value) => value!.trim.call().length < 10 ? "Invalid Phone Number" : null),
-                        SizedBox(
-                          height: 15,
+                          controller: phoneNumberController,
+                          textInputType: TextInputType.numberWithOptions(decimal: false, signed: false),
+                          hintText: '9818212123',
+                          title: 'Phone Number',
+                          maxlength: 10,
+                          validator: (value) => value!.trim.call().length < 10 ? "Invalid Phone Number" : null,
                         ),
+                        SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,80 +237,54 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  AdaptiveText(
-                                    'Date Of Birth'.toUpperCase(),
-                                    style: titleStyle,
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  dateField()
-                                ],
+                                children: <Widget>[AdaptiveText('Date Of Birth'.toUpperCase(), style: titleStyle), SizedBox(height: 5), dateField()],
                               ),
                             ),
-                            SizedBox(
-                              width: ScreenSizeConfig.blockSizeVertical * 3.5,
-                            ),
+                            SizedBox(width: ScreenSizeConfig.blockSizeVertical * 3.5),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  AdaptiveText(
-                                    'Gender'.toUpperCase(),
-                                    style: titleStyle,
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
+                                  AdaptiveText('Gender'.toUpperCase(), style: titleStyle),
+                                  SizedBox(height: 5),
                                   Theme(
                                     data: ThemeData(cardColor: Colors.white),
                                     child: DropdownButtonFormField<String>(
-                                        onTap: () {
-                                          FocusScope.of(context).requestFocus(new FocusNode());
-                                        },
-                                        isExpanded: true,
-                                        validator: (value) => genderValue == null ? '' : null,
-                                        hint: Text('Gender'),
-                                        decoration: InputDecoration(
-                                          hintText: '',
-                                          contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 13),
-                                          isDense: true,
-                                          border: border,
-                                          errorBorder: OutlineInputBorder(gapPadding: 0, borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.red, width: 1.5)),
-                                          enabledBorder: border,
-                                          disabledBorder: border,
-                                          focusedBorder: border,
-                                        ),
-                                        value: genderValue,
-                                        items: genders
-                                            .map((e) => DropdownMenuItem<String>(
-                                                value: e,
-                                                child: Container(
-                                                    child: AdaptiveText(
-                                                  e,
-                                                  style: TextStyle(color: const Color(0xff272b37)),
-                                                ))))
-                                            .toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            genderValue = value;
-                                          });
-                                        }),
+                                      onTap: () {
+                                        FocusScope.of(context).requestFocus(new FocusNode());
+                                      },
+                                      isExpanded: true,
+                                      validator: (value) => genderValue == null ? '' : null,
+                                      hint: Text('Gender'),
+                                      decoration: InputDecoration(
+                                        hintText: '',
+                                        contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 13),
+                                        isDense: true,
+                                        border: border,
+                                        errorBorder: OutlineInputBorder(gapPadding: 0, borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                                        enabledBorder: border,
+                                        disabledBorder: border,
+                                        focusedBorder: border,
+                                      ),
+                                      value: genderValue,
+                                      items:
+                                          genders.map((e) => DropdownMenuItem<String>(value: e, child: Container(child: AdaptiveText(e, style: TextStyle(color: const Color(0xff272b37)))))).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          genderValue = value;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         bodyField(controller: addressController, hintText: 'Lagankhel, Lalitpur', title: 'Address', validator: (value) => value!.trim.call().isEmpty ? "Address Required" : null),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         bodyField(
                           controller: emailController,
                           hintText: 'hello@gmail.com',
@@ -340,9 +293,7 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                           //     ? "Email Address Required"
                           //     : null
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         TextButton(
                           style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Configuration().incomeColor)),
                           onPressed: () async {
@@ -359,13 +310,14 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                                 }
                               }
                               User user = User(
-                                  address: addressController.text.isEmpty ? null : addressController.text,
-                                  dob: dateTime,
-                                  emailAddress: emailController.text.isEmpty ? null : emailController.text,
-                                  gender: genderValue,
-                                  image: (imageDir != null) ? imageDir : null,
-                                  name: fnameController.text.trim() + ' ' + lnameController.text.trim(),
-                                  phonenumber: phoneNumberController.text);
+                                address: addressController.text.isEmpty ? null : addressController.text,
+                                dob: dateTime,
+                                emailAddress: emailController.text.isEmpty ? null : emailController.text,
+                                gender: genderValue,
+                                image: (imageDir != null) ? imageDir : null,
+                                name: fnameController.text.trim() + ' ' + lnameController.text.trim(),
+                                phonenumber: phoneNumberController.text,
+                              );
                               if (widget.userData == null) {
                                 addNewUser(user);
                               } else {
@@ -379,11 +331,8 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
                               }
                             }
                           },
-                          child: AdaptiveText(
-                            'Save',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
-                          ),
-                        )
+                          child: AdaptiveText('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                        ),
                       ],
                     ),
                   ),
@@ -399,41 +348,17 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
   addNewUser(User user) async {
     PreferenceService.instance.setIsUserRegistered();
     await UserService().addUser(user);
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => Settings(
-              type: 0,
-            )));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Settings(type: 0)));
   }
 
   dateField({bool isBsDate = false}) {
     return PopupMenuButton(
       color: Colors.white,
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 0,
-          child: ListTile(
-            title: AdaptiveText(
-              'B.S Date Picker',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-        PopupMenuItem(
-          value: 1,
-          child: ListTile(
-            title: AdaptiveText(
-              'A.D Date Picker',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ],
+      itemBuilder:
+          (context) => [
+            PopupMenuItem(value: 0, child: ListTile(title: AdaptiveText('B.S Date Picker', style: TextStyle(color: Colors.black), textAlign: TextAlign.center))),
+            PopupMenuItem(value: 1, child: ListTile(title: AdaptiveText('A.D Date Picker', style: TextStyle(color: Colors.black), textAlign: TextAlign.center))),
+          ],
       onCanceled: () {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
@@ -462,9 +387,10 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
           hintMaxLines: 2,
           hintStyle: dateTime != null ? TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold) : TextStyle(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.bold),
           contentPadding: EdgeInsets.symmetric(horizontal: 8),
-          hintText: (dateTime == null)
-              ? 'D.O.B'
-              : (popId == 0)
+          hintText:
+              (dateTime == null)
+                  ? 'D.O.B'
+                  : (popId == 0)
                   ? NepaliDateFormat("MMMM dd, y (EEE)", language == Lang.EN ? Language.english : Language.nepali).format(dateTime != null ? dateTime!.toNepaliDateTime() : NepaliDateTime.now())
                   : DateFormat("MMMM dd, y (EEEE)").format(dateTime ?? DateTime.now()),
           border: border,
@@ -482,13 +408,8 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        AdaptiveText(
-          title.toUpperCase(),
-          style: titleStyle,
-        ),
-        SizedBox(
-          height: 5,
-        ),
+        AdaptiveText(title.toUpperCase(), style: titleStyle),
+        SizedBox(height: 5),
         TextFormField(
           enabled: (maxlength == null) || (widget.userData?.phonenumber == null),
           buildCounter: (context, {required currentLength, required isFocused, maxLength}) => Container(),
@@ -497,18 +418,8 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
           maxLength: maxlength,
           style: TextStyle(color: Colors.black, fontSize: 16),
           decoration: InputDecoration(
-            prefixIcon: (maxlength != null)
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      '+977 ',
-                      style: hintTextStyle,
-                    ),
-                  )
-                : null,
-            prefixIconConstraints: BoxConstraints(
-              maxWidth: (14 * 4.0),
-            ),
+            prefixIcon: (maxlength != null) ? Padding(padding: const EdgeInsets.only(left: 8.0), child: Text('+977 ', style: hintTextStyle)) : null,
+            prefixIconConstraints: BoxConstraints(maxWidth: (14 * 4.0)),
             errorStyle: TextStyle(color: Colors.red),
             prefixStyle: TextStyle(color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(horizontal: 8),
@@ -521,7 +432,7 @@ class _UserInfoRegistrationPageState extends State<UserInfoRegistrationPage> {
           ),
           validator: validator,
           controller: controller,
-        )
+        ),
       ],
     );
   }

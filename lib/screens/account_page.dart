@@ -50,6 +50,8 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
@@ -60,19 +62,15 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  _refreshBalance() => AccountService().getAccounts().then(
-        (accounts) {
-          if (accounts != null) {
-            _currentBalance = 0;
-            accounts.forEach(
-              (account) {
-                _currentBalance += int.tryParse(account.balance!) ?? 0;
-              },
-            );
-            setState(() {});
-          }
-        },
-      );
+  _refreshBalance() => AccountService().getAccounts().then((accounts) {
+    if (accounts != null) {
+      _currentBalance = 0;
+      accounts.forEach((account) {
+        _currentBalance += int.tryParse(account.balance!) ?? 0;
+      });
+      setState(() {});
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,30 +83,20 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
           drawer: MyDrawer(),
           appBar: AppBar(
             // centerTitle: true,
-            title: AdaptiveText(
-              'Accounts',
-              style: TextStyle(fontSize: 17),
-            ),
+            title: AdaptiveText('Accounts', style: TextStyle(fontSize: 17)),
           ),
           floatingActionButton: FloatingActionButton(
             splashColor: const Color(0xff7635c7),
             onPressed: () async {
               if ((await showDialog(
                     context: context,
-                    builder: (context) => ChangeNotifierProvider<PreferenceProvider>(
-                      create: ((context) => PreferenceProvider()),
-                      child: _AccountDialog(_accounts),
-                    ),
+                    builder: (context) => ChangeNotifierProvider<PreferenceProvider>(create: ((context) => PreferenceProvider()), child: _AccountDialog(_accounts)),
                   )) ??
                   false) {
                 _refreshBalance();
               }
             },
-            child: Icon(
-              Icons.add,
-              size: 33,
-              color: Configuration().appColor,
-            ),
+            child: Icon(Icons.add, size: 33, color: Configuration().appColor),
             backgroundColor: Colors.white,
           ),
           body: _buildBody(),
@@ -128,11 +116,7 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
             SizedBox(height: 20.0),
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  bottomRight: Radius.circular(30.0),
-                  bottomLeft: Radius.circular(30.0),
-                ),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), bottomRight: Radius.circular(30.0), bottomLeft: Radius.circular(30.0)),
                 color: const Color(0xff7635c7),
               ),
               child: Padding(
@@ -141,41 +125,16 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    AdaptiveText(
-                      'Current Balance',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: const Color(0xffffffff),
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
+                    AdaptiveText('Current Balance', style: TextStyle(fontSize: 20, color: const Color(0xffffffff), fontWeight: FontWeight.w600), textAlign: TextAlign.left),
                     SizedBox(height: 20.0),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
-                        Text(
-                          _formatBalanceWithComma('$_currentBalance'),
-                          style: TextStyle(
-                            fontSize: 31,
-                            color: const Color(0xffffffff),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 3,
-                        ),
+                        Text(_formatBalanceWithComma('$_currentBalance'), style: TextStyle(fontSize: 31, color: const Color(0xffffffff), fontWeight: FontWeight.w700)),
+                        SizedBox(width: 3),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
-                          child: AdaptiveText(
-                            'NPR',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: const Color(0xffb182ec),
-                              fontWeight: FontWeight.w700,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
+                          child: AdaptiveText('NPR', style: TextStyle(fontSize: 14, color: const Color(0xffb182ec), fontWeight: FontWeight.w700), textAlign: TextAlign.left),
                         ),
                       ],
                     ),
@@ -184,9 +143,7 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            SizedBox(
-              height: 10.0,
-            ),
+            SizedBox(height: 10.0),
             FutureBuilder<List<Account>>(
               future: AccountService().getAccounts(),
               builder: (context, snapshot) {
@@ -206,11 +163,7 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
                         child: Container(
                           width: double.maxFinite,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30.0),
-                              bottomRight: Radius.circular(30.0),
-                              bottomLeft: Radius.circular(30.0),
-                            ),
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), bottomRight: Radius.circular(30.0), bottomLeft: Radius.circular(30.0)),
                             color: const Color(0xffffffff),
                           ),
                           child: ListTile(
@@ -219,56 +172,26 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
                               child: getBankAccountTypeIcon(_accounts![_index].type),
                               // child:
                             ),
-                            title: AdaptiveText(
-                              _accounts![_index].name ?? '',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: const Color(0xff272b37),
-                                height: 1.4285714285714286,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            subtitle: AdaptiveText(
-                              _accountType(_accounts![_index].type),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
+                            title: AdaptiveText(_accounts![_index].name ?? '', style: TextStyle(fontSize: 16, color: const Color(0xff272b37), height: 1.4285714285714286), textAlign: TextAlign.left),
+                            subtitle: AdaptiveText(_accountType(_accounts![_index].type), style: TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.left),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 Text(
                                   _formatBalanceWithComma(_accounts![_index].balance!),
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: const Color(0xff1e1e1e),
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: TextStyle(fontSize: 18, color: const Color(0xff1e1e1e), fontWeight: FontWeight.w700),
                                   textAlign: TextAlign.center,
                                 ),
                                 Theme(
                                   data: Theme.of(context).copyWith(cardColor: Colors.white),
                                   child: PopupMenuButton<int>(
-                                    icon: Icon(
-                                      Icons.more_vert,
-                                      color: Colors.grey,
-                                    ),
+                                    icon: Icon(Icons.more_vert, color: Colors.grey),
                                     onSelected: (value) async {
                                       if (value == 1) {
                                         _deleteDialog(_accounts![_index]);
                                       }
                                     },
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem(
-                                        value: 1,
-                                        child: AdaptiveText(
-                                          'Delete',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ),
-                                    ],
+                                    itemBuilder: (context) => [PopupMenuItem(value: 1, child: AdaptiveText('Delete', style: TextStyle(color: Colors.black)))],
                                   ),
                                 ),
                               ],
@@ -279,9 +202,7 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
                     },
                   );
                 }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
+                return Center(child: CircularProgressIndicator());
               },
             ),
           ],
@@ -311,24 +232,23 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
   }
 
   void _deleteDialog(Account account) {
-    showDeleteDialog(context, title: 'Delete Account', deleteButtonText: 'Delete', onDeletePress: () async {
-      if ((account.transactionIds?.length ?? 0) == 0) {
-        await AccountService().deleteAccount(account, false);
-        Navigator.of(context, rootNavigator: true).pop(true);
-      } else {
-        Navigator.of(context, rootNavigator: true).pop(false);
-        ScaffoldMessenger.of(_scaffoldKey.currentState!.context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: AdaptiveText(
-              'Cannot delete! This account is linked with some transactions.',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      }
-    }, description: 'Are you sure you want to delete this account?')
-        .then((value) {
+    showDeleteDialog(
+      context,
+      title: 'Delete Account',
+      deleteButtonText: 'Delete',
+      onDeletePress: () async {
+        if ((account.transactionIds?.length ?? 0) == 0) {
+          await AccountService().deleteAccount(account, false);
+          Navigator.of(context, rootNavigator: true).pop(true);
+        } else {
+          Navigator.of(context, rootNavigator: true).pop(false);
+          ScaffoldMessenger.of(
+            _scaffoldKey.currentState!.context,
+          ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: AdaptiveText('Cannot delete! This account is linked with some transactions.', style: TextStyle(color: Colors.white))));
+        }
+      },
+      description: 'Are you sure you want to delete this account?',
+    ).then((value) {
       if (value ?? false) {
         _refreshBalance();
       }
@@ -340,30 +260,13 @@ class _AccountPageState extends State<AccountPage> with WidgetsBindingObserver {
 Widget getBankAccountTypeIcon(int? accountTypeId, {bool isForm = false}) {
   switch (accountTypeId) {
     case 0:
-      return Icon(
-        VectorIcons.fromName('user-tie', provider: IconProvider.FontAwesome5),
-        color: Configuration.accountIconColor,
-        size: isForm ? 18 : 25,
-      );
+      return Icon(VectorIcons.fromName('user-tie', provider: IconProvider.FontAwesome5), color: Configuration.accountIconColor, size: isForm ? 18 : 25);
     case 1:
-      return Icon(
-        VectorIcons.fromName('university', provider: IconProvider.FontAwesome5),
-        color: Configuration.accountIconColor,
-        size: isForm ? 18 : 25,
-      );
+      return Icon(VectorIcons.fromName('university', provider: IconProvider.FontAwesome5), color: Configuration.accountIconColor, size: isForm ? 18 : 25);
     case 2:
-      return SvgPicture.string(
-        cashIcon,
-        fit: BoxFit.fill,
-        height: isForm ? 14 : null,
-        allowDrawingOutsideViewBox: false,
-      );
+      return SvgPicture.string(cashIcon, fit: BoxFit.fill, height: isForm ? 14 : null, allowDrawingOutsideViewBox: false);
     default:
-      return Icon(
-        VectorIcons.fromName('wallet', provider: IconProvider.FontAwesome5),
-        color: Configuration.accountIconColor,
-        size: isForm ? 18 : 25,
-      );
+      return Icon(VectorIcons.fromName('wallet', provider: IconProvider.FontAwesome5), color: Configuration.accountIconColor, size: isForm ? 18 : 25);
   }
 }
 
@@ -414,50 +317,26 @@ class __AccountDialogState extends State<_AccountDialog> {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            SvgPicture.string(
-                              userLogo,
-                              allowDrawingOutsideViewBox: true,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            AdaptiveText(
-                              'Account Type',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: const Color(0xff43425d),
-                                height: 1.5625,
-                              ),
-                            )
+                            SvgPicture.string(userLogo, allowDrawingOutsideViewBox: true),
+                            SizedBox(width: 5),
+                            AdaptiveText('Account Type', style: TextStyle(fontSize: 16, color: const Color(0xff43425d), height: 1.5625)),
                           ],
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
+                        SizedBox(height: 5),
                         Container(
                           width: double.maxFinite,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                          decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8.0)),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               value: _accountType,
                               isExpanded: true,
                               style: TextStyle(color: Colors.black.withOpacity(0.8), fontSize: 15.0),
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.grey,
-                              ),
-                              items: (accounts ?? [])
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      child: dropDownMenuBuilder(Icons.add, e.name, iconBuilderWidget: getBankAccountTypeIcon(e.type, isForm: true)),
-                                      value: e.type,
-                                    ),
-                                  )
-                                  .toList(),
+                              icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                              items:
+                                  (accounts ?? [])
+                                      .map((e) => DropdownMenuItem(child: dropDownMenuBuilder(Icons.add, e.name, iconBuilderWidget: getBankAccountTypeIcon(e.type, isForm: true)), value: e.type))
+                                      .toList(),
                               onTap: () {
                                 FocusScope.of(context).requestFocus(new FocusNode());
                               },
@@ -469,86 +348,46 @@ class __AccountDialogState extends State<_AccountDialog> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         Row(
                           children: <Widget>[
-                            SvgPicture.string(
-                              userLogo,
-                              allowDrawingOutsideViewBox: true,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            AdaptiveText(
-                              'Enter Account Name',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: const Color(0xff43425d),
-                                height: 1.5625,
-                              ),
-                            ),
+                            SvgPicture.string(userLogo, allowDrawingOutsideViewBox: true),
+                            SizedBox(width: 5),
+                            AdaptiveText('Enter Account Name', style: TextStyle(fontSize: 16, color: const Color(0xff43425d), height: 1.5625)),
                           ],
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
+                        SizedBox(height: 5),
                         Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                          decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8.0)),
                           child: TextFormField(
                             validator: validator,
                             controller: _accountNameController,
                             style: TextStyle(color: Colors.grey[800], fontSize: 20.0),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
-                            ),
+                            decoration: InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(10)),
                           ),
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         Row(
                           children: <Widget>[
-                            SvgPicture.string(
-                              loadingIcon,
-                              allowDrawingOutsideViewBox: true,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            AdaptiveText(
-                              'Enter Opening Balance',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: const Color(0xff43425d),
-                                height: 1.5625,
-                              ),
-                            ),
+                            SvgPicture.string(loadingIcon, allowDrawingOutsideViewBox: true),
+                            SizedBox(width: 5),
+                            AdaptiveText('Enter Opening Balance', style: TextStyle(fontSize: 16, color: const Color(0xff43425d), height: 1.5625)),
                           ],
                         ),
                       ],
                     ),
                     SizedBox(height: 5.0),
                     Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
+                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8.0)),
                       child: TextFormField(
-                        validator: (value) => value!.isEmpty
-                            ? language == Lang.EN
-                                ? 'Balance Cannot be Empty'
-                                : 'ब्यालेन्स खाली हुन सक्दैन'
-                            : null,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10),
-                        ),
+                        validator:
+                            (value) =>
+                                value!.isEmpty
+                                    ? language == Lang.EN
+                                        ? 'Balance Cannot be Empty'
+                                        : 'ब्यालेन्स खाली हुन सक्दैन'
+                                    : null,
+                        decoration: InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(10)),
                         controller: _openingBalanceController,
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -560,20 +399,10 @@ class __AccountDialogState extends State<_AccountDialog> {
               ),
               SizedBox(height: 25.0),
               TextButton.icon(
-                icon: Icon(
-                  Icons.add,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith((states) => Configuration().incomeColor),
-                ),
+                icon: Icon(Icons.add, size: 20, color: Colors.white),
+                style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Configuration().incomeColor)),
                 onPressed: _addAccount,
-                label: AdaptiveText(
-                  'Add Account',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 17.0, color: Colors.white),
-                ),
+                label: AdaptiveText('Add Account', textAlign: TextAlign.center, style: TextStyle(fontSize: 17.0, color: Colors.white)),
               ),
               SizedBox(height: 8.0),
             ],

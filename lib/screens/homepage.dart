@@ -57,11 +57,7 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
     });
 
     // loadv102appPages();
-    _tabController = TabController(
-      length: noOfmonths,
-      vsync: this,
-      initialIndex: _currentMonth - 1,
-    );
+    _tabController = TabController(length: noOfmonths, vsync: this, initialIndex: _currentMonth - 1);
   }
 
   @override
@@ -79,6 +75,8 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
         ActivityTracker().pageTransactionActivity(PageName.dashboard, action: 'Resumed');
         break;
       case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
         break;
     }
   }
@@ -122,34 +120,11 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
               children: [
                 Text(
                   ((language == Lang.EN) ? 'MunshiG (' : 'मुंशीजी ('),
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    color: const Color(0xffffffff),
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins', fontSize: 17, color: const Color(0xffffffff), fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
-                AdaptiveText(
-                  selectedSubSector!,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    color: const Color(0xffffffff),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  ')',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    color: const Color(0xffffffff),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                AdaptiveText(selectedSubSector!, style: TextStyle(fontFamily: 'Poppins', fontSize: 17, color: const Color(0xffffffff), fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                Text(')', style: TextStyle(fontFamily: 'Poppins', fontSize: 17, color: const Color(0xffffffff), fontWeight: FontWeight.w600), textAlign: TextAlign.center),
               ],
             ),
             actions: [
@@ -158,7 +133,7 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
                   exitApplication();
                 },
                 icon: Icon(Icons.exit_to_app),
-              )
+              ),
             ],
             bottom: TabBar(
               controller: _tabController,
@@ -167,43 +142,37 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
                 for (int index = 0; index < noOfmonths; index++)
                   language == Lang.EN
                       ? Tab(
-                          child: Text(
-                            NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(
-                              NepaliDateTime(
-                                _dateResolver[index].year,
-                                _dateResolver[index].month,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Tab(
-                          child: Text(
-                            NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(
-                              NepaliDateTime(_dateResolver[index].year, _dateResolver[index].month),
-                            ),
-                            style: TextStyle(color: Colors.white),
-                          ),
+                        child: Text(
+                          NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime(_dateResolver[index].year, _dateResolver[index].month)),
                         ),
+                      )
+                      : Tab(
+                        child: Text(
+                          NepaliDateFormat("MMMM ''yy", language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime(_dateResolver[index].year, _dateResolver[index].month)),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
               ],
             ),
           ),
           drawer: MyDrawer(homePageState: this),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              for (int index = 0; index < noOfmonths; index++) _buildBody(_dateResolver[index]),
-            ],
-          ),
+          body: TabBarView(controller: _tabController, children: [for (int index = 0; index < noOfmonths; index++) _buildBody(_dateResolver[index])]),
         ),
       ),
     );
   }
 
   exitApplication() {
-    showDeleteDialog(context, title: 'Confirm Exit', deleteButtonText: 'Exit  ', description: 'Do you want to exit this application?', onDeletePress: () {
-      ActivityTracker().otherActivityOnPage(PageName.dashboard, 'Exit App from In-App Dialog', 'Exit', 'FlatButton');
-      SystemNavigator.pop(animated: true);
-    });
+    showDeleteDialog(
+      context,
+      title: 'Confirm Exit',
+      deleteButtonText: 'Exit  ',
+      description: 'Do you want to exit this application?',
+      onDeletePress: () {
+        ActivityTracker().otherActivityOnPage(PageName.dashboard, 'Exit App from In-App Dialog', 'Exit', 'FlatButton');
+        SystemNavigator.pop(animated: true);
+      },
+    );
   }
 
   Widget _buildBody(NepaliDateTime date) {
@@ -229,32 +198,20 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
                         final percentSaved = income == 0.0 ? 0.0 : (income - expense) / (income) * 100;
                         return Center(
                           child: SleekCircularSlider(
-                            innerWidget: (percentage) => Padding(
-                              padding: EdgeInsets.only(top: ScreenSizeConfig.blockSizeVertical * 4.5),
-                              child: Center(child: _centerWidget(income, expense)),
-                            ),
+                            innerWidget: (percentage) => Padding(padding: EdgeInsets.only(top: ScreenSizeConfig.blockSizeVertical * 4.5), child: Center(child: _centerWidget(income, expense))),
                             initialValue: isExpenseGreater ? 100 : (percentSaved),
                             appearance: CircularSliderAppearance(
                               angleRange: 360,
                               startAngle: 270,
-                              customWidths: CustomSliderWidths(
-                                trackWidth: 10.0,
-                                progressBarWidth: 10.0,
-                              ),
+                              customWidths: CustomSliderWidths(trackWidth: 10.0, progressBarWidth: 10.0),
                               customColors: CustomSliderColors(
                                 trackColor: Configuration().expenseColor,
                                 progressBarColors: (isExpenseGreater) ? [Colors.red, Colors.red] : [Color(0xff7635C7), Color(0xff7635C7)],
                                 hideShadow: true,
                               ),
                               infoProperties: InfoProperties(
-                                topLabelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                ),
-                                bottomLabelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                ),
+                                topLabelStyle: TextStyle(color: Colors.black, fontSize: 20.0),
+                                bottomLabelStyle: TextStyle(color: Colors.black, fontSize: 20.0),
                                 mainLabelStyle: TextStyle(fontSize: 17.0, color: Colors.black),
                               ),
                             ),
@@ -265,63 +222,31 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
                     Column(
                       children: <Widget>[
                         InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TransactionPage(
-                                0,
-                                selectedSubSector: selectedSubSector,
-                              ),
-                            ),
-                          ).then((onValue) {
-                            if (onValue ?? false) {
-                              updateChartData();
-                            }
-                          }),
+                          onTap:
+                              () => Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionPage(0, selectedSubSector: selectedSubSector))).then((onValue) {
+                                if (onValue ?? false) {
+                                  updateChartData();
+                                }
+                              }),
                           child: Column(
                             children: <Widget>[
                               circularComponent(true),
-                              AdaptiveText(
-                                'Cash In',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  color: const Color(0xff1e1e1e),
-                                  height: 2.0833333333333335,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                              AdaptiveText('Cash In', style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: const Color(0xff1e1e1e), height: 2.0833333333333335), textAlign: TextAlign.center),
                             ],
                           ),
                         ),
                         SizedBox(height: 10),
                         InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TransactionPage(
-                                1,
-                                selectedSubSector: selectedSubSector,
-                              ),
-                            ),
-                          ).then((onValue) {
-                            if (onValue ?? false) {
-                              updateChartData();
-                            }
-                          }),
+                          onTap:
+                              () => Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionPage(1, selectedSubSector: selectedSubSector))).then((onValue) {
+                                if (onValue ?? false) {
+                                  updateChartData();
+                                }
+                              }),
                           child: Column(
                             children: <Widget>[
                               circularComponent(false),
-                              AdaptiveText(
-                                'Cash out',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  color: const Color(0xff1e1e1e),
-                                  height: 2.0833333333333335,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                              AdaptiveText('Cash out', style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: const Color(0xff1e1e1e), height: 2.0833333333333335), textAlign: TextAlign.center),
                             ],
                           ),
                         ),
@@ -336,47 +261,33 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
                 style: TextStyle(fontFamily: 'Poppins', fontSize: 16, color: Colors.black, height: 1.4285714285714286, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
-              Divider(
-                color: Colors.grey.withOpacity(0.5),
-                thickness: 1,
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
+              Divider(color: Colors.grey.withOpacity(0.5), thickness: 1),
+              SizedBox(height: 10.0),
               FutureBuilder<List<Transaction>>(
-                  future: TransactionService().getTransactions(selectedSubSector!, date.year, date.month),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data!.length == 0) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            AspectRatio(
-                              aspectRatio: 4,
-                              child: SvgPicture.string(
-                                noTransactionIcon,
-                                allowDrawingOutsideViewBox: true,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            AdaptiveText(
-                              'No Transactions',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: Colors.grey, height: 1.4285714285714286, fontWeight: FontWeight.w500),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        );
-                      } else {
-                        return TransactionList(transactionData: snapshot.data, date: date, language: language);
-                      }
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
+                future: TransactionService().getTransactions(selectedSubSector!, date.year, date.month),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.length == 0) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          AspectRatio(aspectRatio: 4, child: SvgPicture.string(noTransactionIcon, allowDrawingOutsideViewBox: true)),
+                          SizedBox(height: 5),
+                          AdaptiveText(
+                            'No Transactions',
+                            style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: Colors.grey, height: 1.4285714285714286, fontWeight: FontWeight.w500),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       );
+                    } else {
+                      return TransactionList(transactionData: snapshot.data, date: date, language: language);
                     }
-                  }),
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -388,31 +299,11 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        AdaptiveText(
-          'Cash In',
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          nepaliNumberFormatter(income),
-          style: TextStyle(color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.bold),
-        ),
+        AdaptiveText('Cash In', style: TextStyle(color: Colors.black)),
+        Text(nepaliNumberFormatter(income), style: TextStyle(color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.bold)),
         SizedBox(height: 10.0),
-        AdaptiveText(
-          'Cash Out',
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          nepaliNumberFormatter(expense),
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
+        AdaptiveText('Cash Out', style: TextStyle(color: Colors.black)),
+        Text(nepaliNumberFormatter(expense), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18.0)),
       ],
     );
   }
@@ -423,18 +314,10 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin,
 
   circularComponent(bool cashIn) {
     return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: cashIn ? Configuration().incomeColor : Configuration().expenseColor,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: cashIn ? Configuration().incomeColor : Configuration().expenseColor),
       height: 38,
       width: 38,
-      child: Center(
-        child: Icon(
-          (cashIn) ? Icons.add : Icons.remove,
-          size: 30,
-        ),
-      ),
+      child: Center(child: Icon((cashIn) ? Icons.add : Icons.remove, size: 30)),
     );
   }
 }
@@ -487,41 +370,26 @@ class _TransactionListState extends State<TransactionList> {
     return Theme(
       data: Theme.of(context).copyWith(cardColor: Colors.white, primaryColor: Colors.red),
       child: ExpansionPanelList(
-          // elevation: 0,
-          expansionCallback: (index, isExpanded) {
-            setState(() {
-              _expansionRecords![index] = !isExpanded;
-            });
-          },
-          children: [
-            for (int i = 0; i < _transactionMap.length; i++)
-              ExpansionPanel(
-                isExpanded: _expansionRecords![i],
-                canTapOnHeader: true,
-                headerBuilder: (context, isExpanded) => ListTile(
-                  leading: Chip(
-                    label: Text(getDateTimeFormat(_transactionMap.keys.toList()[i])),
-                    backgroundColor: Configuration().incomeColor,
+        // elevation: 0,
+        expansionCallback: (index, isExpanded) {
+          setState(() {
+            _expansionRecords![index] = !isExpanded;
+          });
+        },
+        children: [
+          for (int i = 0; i < _transactionMap.length; i++)
+            ExpansionPanel(
+              isExpanded: _expansionRecords![i],
+              canTapOnHeader: true,
+              headerBuilder:
+                  (context, isExpanded) => ListTile(
+                    leading: Chip(label: Text(getDateTimeFormat(_transactionMap.keys.toList()[i])), backgroundColor: Configuration().incomeColor),
+                    title: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [_aggregate(0, income[i]), _aggregate(1, expense[i])])),
                   ),
-                  title: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _aggregate(
-                          0,
-                          income[i],
-                        ),
-                        _aggregate(
-                          1,
-                          expense[i],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                body: _dailyTransactionWidget(_transactionMap[_transactionMap.keys.toList()[i]]!),
-              ),
-          ]),
+              body: _dailyTransactionWidget(_transactionMap[_transactionMap.keys.toList()[i]]!),
+            ),
+        ],
+      ),
     );
   }
 
@@ -542,92 +410,54 @@ class _TransactionListState extends State<TransactionList> {
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
         children: [
-          Material(
-            color: (transactionType == 0) ? Configuration().incomeColor : Configuration().expenseColor,
-            shape: CircleBorder(),
-            child: SizedBox(
-              width: 10.0,
-              height: 10.0,
-            ),
-          ),
+          Material(color: (transactionType == 0) ? Configuration().incomeColor : Configuration().expenseColor, shape: CircleBorder(), child: SizedBox(width: 10.0, height: 10.0)),
           SizedBox(width: 5.0),
-          Text(
-            nepaliNumberFormatter(amount),
-            style: TextStyle(
-              fontSize: 15.0,
-              color: Colors.black,
-            ),
-          ),
+          Text(nepaliNumberFormatter(amount), style: TextStyle(fontSize: 15.0, color: Colors.black)),
         ],
       ),
     );
   }
 
   getDateTimeFormat(String date) {
-    return NepaliDateFormat("dd/MM/EE", widget.language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime.parse(NepaliDateTime(
-      int.parse(date.split('-').first),
-      int.parse(date.split('-')[1]),
-      int.parse(date.split('-').last),
-    ).toString()));
+    return NepaliDateFormat(
+      "dd/MM/EE",
+      widget.language == Lang.EN ? Language.english : Language.nepali,
+    ).format(NepaliDateTime.parse(NepaliDateTime(int.parse(date.split('-').first), int.parse(date.split('-')[1]), int.parse(date.split('-').last)).toString()));
   }
 
   Widget _dailyTransactionWidget(List<Transaction> dailyTransactions) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(
-            Radius.circular(15.0),
-          ),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15.0))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0),
               child: ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: dailyTransactions.length,
-                  reverse: true,
-                  itemBuilder: (context, index) {
-                    return FutureBuilder<Category>(
-                      future: CategoryService().getCategoryById(
-                        selectedSubSector!,
-                        dailyTransactions[index].categoryId,
-                        dailyTransactions[index].transactionType,
-                      ),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return SizedBox.shrink();
-                        return ListTile(
-                          onTap: () async {
-                            await _showTransactionDetail(dailyTransactions[index]);
-                          },
-                          leading: Icon(
-                            VectorIcons.fromName(
-                              snapshot.data!.iconName,
-                              provider: IconProvider.FontAwesome5,
-                            ),
-                            color: Configuration().incomeColor,
-                            size: 20.0,
-                          ),
-                          title: AdaptiveText(
-                            '',
-                            category: snapshot.data,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          trailing: Text(
-                            nepaliNumberFormatter(double.tryParse(dailyTransactions[index].amount!)),
-                            style: getTextStyle(dailyTransactions[index]),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  separatorBuilder: (context, _) => Container(
-                        height: 1,
-                      )),
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: dailyTransactions.length,
+                reverse: true,
+                itemBuilder: (context, index) {
+                  return FutureBuilder<Category>(
+                    future: CategoryService().getCategoryById(selectedSubSector!, dailyTransactions[index].categoryId, dailyTransactions[index].transactionType),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return SizedBox.shrink();
+                      return ListTile(
+                        onTap: () async {
+                          await _showTransactionDetail(dailyTransactions[index]);
+                        },
+                        leading: Icon(VectorIcons.fromName(snapshot.data!.iconName, provider: IconProvider.FontAwesome5), color: Configuration().incomeColor, size: 20.0),
+                        title: AdaptiveText('', category: snapshot.data, style: TextStyle(color: Colors.black)),
+                        trailing: Text(nepaliNumberFormatter(double.tryParse(dailyTransactions[index].amount!)), style: getTextStyle(dailyTransactions[index])),
+                      );
+                    },
+                  );
+                },
+                separatorBuilder: (context, _) => Container(height: 1),
+              ),
             ),
           ],
         ),
@@ -636,55 +466,39 @@ class _TransactionListState extends State<TransactionList> {
   }
 
   Future _showTransactionDetail(Transaction transaction) async {
-    await detailDialog(context,
-        title: 'Transaction Detail',
-        detailWidget: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          _detailsRow(
-            'Date: ',
-            NepaliDateFormat("MMMM dd, y (EEE)", widget.language == Lang.EN ? Language.english : Language.nepali).format(
-              NepaliDateTime.parse(transaction.timestamp!),
-            ),
-          ),
+    await detailDialog(
+      context,
+      title: 'Transaction Detail',
+      detailWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          _detailsRow('Date: ', NepaliDateFormat("MMMM dd, y (EEE)", widget.language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime.parse(transaction.timestamp!))),
           // SizedBox(height: 5.0),
           _detailsRow('Detail: ', '${transaction.memo ?? ''}'),
           // SizedBox(height: 5.0),
-          _detailsRow(
-            'Amount: ',
-            nepaliNumberFormatter(transaction.amount ?? 0),
-          ),
-        ]), onDelete: () {
-      _deleteTransaction(transaction).then((value) {
-        Navigator.of(context, rootNavigator: true).pop(value);
-      });
-    }, onUpdate: () {
-      Navigator.of(context, rootNavigator: true).pop();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TransactionPage(
-            transaction.transactionType,
-            transaction: transaction,
-            selectedSubSector: selectedSubSector,
-          ),
-        ),
-      ).then((value) {
+          _detailsRow('Amount: ', nepaliNumberFormatter(transaction.amount ?? 0)),
+        ],
+      ),
+      onDelete: () {
+        _deleteTransaction(transaction).then((value) {
+          Navigator.of(context, rootNavigator: true).pop(value);
+        });
+      },
+      onUpdate: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionPage(transaction.transactionType, transaction: transaction, selectedSubSector: selectedSubSector))).then((value) {
+          if (value ?? false) {
+            Navigator.pushNamedAndRemoveUntil(context, home, ModalRoute.withName(home));
+          }
+        });
+      },
+      onDialogClosed: (value) {
         if (value ?? false) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            home,
-            ModalRoute.withName(home),
-          );
+          Navigator.pushNamedAndRemoveUntil(context, home, ModalRoute.withName(home));
         }
-      });
-    }, onDialogClosed: (value) {
-      if (value ?? false) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          home,
-          ModalRoute.withName(home),
-        );
-      }
-    });
+      },
+    );
   }
 
   _detailsRow(String title, String value) {
@@ -692,30 +506,9 @@ class _TransactionListState extends State<TransactionList> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        AdaptiveText(
-          title,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 13,
-            color: const Color(0xff272b37),
-            height: 2.1538461538461537,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(
-          width: 3,
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 13,
-              color: const Color(0xff272b37),
-              height: 2.1538461538461537,
-            ),
-          ),
-        ),
+        AdaptiveText(title, style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: const Color(0xff272b37), height: 2.1538461538461537, fontWeight: FontWeight.w700)),
+        SizedBox(width: 3),
+        Expanded(child: Text(value, style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: const Color(0xff272b37), height: 2.1538461538461537))),
       ],
     );
   }
@@ -730,12 +523,19 @@ class _TransactionListState extends State<TransactionList> {
   }
 
   Future<bool> _deleteTransaction(Transaction transaction) async {
-    final d = await showDeleteDialog(context, topIcon: Icons.error_outline, description: 'Are you sure you want to delete this transaction?', title: 'Delete Transaction', onDeletePress: () async {
-      await TransactionService().deleteTransaction(selectedSubSector!, transaction, false);
-      Navigator.of(context, rootNavigator: true).pop(true);
-    }, onCancelPress: () {
-      Navigator.of(context, rootNavigator: true).pop(false);
-    });
+    final d = await showDeleteDialog(
+      context,
+      topIcon: Icons.error_outline,
+      description: 'Are you sure you want to delete this transaction?',
+      title: 'Delete Transaction',
+      onDeletePress: () async {
+        await TransactionService().deleteTransaction(selectedSubSector!, transaction, false);
+        Navigator.of(context, rootNavigator: true).pop(true);
+      },
+      onCancelPress: () {
+        Navigator.of(context, rootNavigator: true).pop(false);
+      },
+    );
 
     return d;
   }

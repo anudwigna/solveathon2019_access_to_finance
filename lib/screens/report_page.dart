@@ -29,10 +29,7 @@ import '../services/activity_tracking.dart';
 
 class ReportPage extends StatefulWidget {
   final String? selectedSubSector;
-  const ReportPage({
-    Key? key,
-    this.selectedSubSector,
-  }) : super(key: key);
+  const ReportPage({Key? key, this.selectedSubSector}) : super(key: key);
   @override
   _ReportPageState createState() => _ReportPageState();
 }
@@ -67,6 +64,8 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
         ActivityTracker().pageTransactionActivity(PageName.report, action: 'Resumed');
         break;
       case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
         break;
     }
   }
@@ -122,14 +121,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          AdaptiveText(
-                            'From'.toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
+                          AdaptiveText('From'.toUpperCase(), style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 14)),
                           DateSelector(
                             textColor: Colors.black,
                             onDateChanged: (value) {
@@ -139,7 +131,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                                 });
                             },
                             currentDate: fromDate,
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -147,14 +139,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          AdaptiveText(
-                            'To'.toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
+                          AdaptiveText('To'.toUpperCase(), style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 14)),
                           DateSelector(
                             textColor: Colors.black,
                             initialDateYear: fromDate.year,
@@ -166,7 +151,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                                   toDate = value;
                                 });
                             },
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -184,12 +169,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                     }
                     getReportData(fromDate.year, fromDate.month, toDate.year, toDate.month);
                   },
-                  child: Center(
-                    child: AdaptiveText(
-                      'Search',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
+                  child: Center(child: AdaptiveText('Search', style: TextStyle(color: Colors.white, fontSize: 16))),
                 ),
               ),
             ],
@@ -208,10 +188,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
 
   getReportData(int formyear, int fromtmonth, int toyear, int tomonth) {
     clearVariable();
-    Future.wait([
-      CategoryService().getCategoriesID(selectedSubSector!, CategoryType.EXPENSE),
-      CategoryService().getCategoriesID(selectedSubSector!, CategoryType.INCOME),
-    ]).then((value) async {
+    Future.wait([CategoryService().getCategoriesID(selectedSubSector!, CategoryType.EXPENSE), CategoryService().getCategoriesID(selectedSubSector!, CategoryType.INCOME)]).then((value) async {
       exCat = value[0];
       incomeCat = value[1];
       double budgetcf = 0;
@@ -223,9 +200,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
 
         /// ---budjet projection data--
         final value = await BudgetService().getTotalBudgetByDate(selectedSubSector!, e.month, e.year);
-        final totalData = getSumTotal(
-          value,
-        );
+        final totalData = getSumTotal(value);
         final budgetTotalData = totalData[0];
         final budgetOutflow = budgetTotalData[0];
         final budgetInflow = budgetTotalData[1];
@@ -233,13 +208,12 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
         budgetcf = budgetcf + inflowMINUSoutflow;
         budgetExportDataModel.add(
           ExportDataModel(
-              date: NepaliDateFormat("MMMM yyyy", language == Lang.EN ? Language.english : Language.nepali).format(
-                NepaliDateTime(e.year, e.month),
-              ),
-              inflow: budgetInflow,
-              outflow: budgetOutflow,
-              inflowMINUSoutflow: inflowMINUSoutflow,
-              cf: budgetcf),
+            date: NepaliDateFormat("MMMM yyyy", language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime(e.year, e.month)),
+            inflow: budgetInflow,
+            outflow: budgetOutflow,
+            inflowMINUSoutflow: inflowMINUSoutflow,
+            cf: budgetcf,
+          ),
         );
 
         /// --- transaction data ---
@@ -255,13 +229,12 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
         transactioncf = transactioncf + inflowMINUSoutflow;
         transcationExportDataModel.add(
           ExportDataModel(
-              date: NepaliDateFormat("MMMM yyyy", language == Lang.EN ? Language.english : Language.nepali).format(
-                NepaliDateTime(e.year, e.month),
-              ),
-              inflow: realDataInflow,
-              outflow: realDataOutflow,
-              inflowMINUSoutflow: inflowMINUSoutflow,
-              cf: transactioncf),
+            date: NepaliDateFormat("MMMM yyyy", language == Lang.EN ? Language.english : Language.nepali).format(NepaliDateTime(e.year, e.month)),
+            inflow: realDataInflow,
+            outflow: realDataOutflow,
+            inflowMINUSoutflow: inflowMINUSoutflow,
+            cf: transactioncf,
+          ),
         );
       }
       budgetGroupedData = budgetExportDataModel.groupBy((e) => e.date!.split("'").last);
@@ -278,9 +251,10 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
   @override
   // ignore: must_call_super
   Widget build(BuildContext context) {
-    return Consumer<PreferenceProvider>(builder: (context, preferenceProvider, _) {
-      language = preferenceProvider.language;
-      return Scaffold(
+    return Consumer<PreferenceProvider>(
+      builder: (context, preferenceProvider, _) {
+        language = preferenceProvider.language;
+        return Scaffold(
           key: _scaffoldKey,
           backgroundColor: Configuration().appColor,
           drawer: MyDrawer(),
@@ -293,92 +267,56 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                     showButton: false,
                     detailWidget: Column(
                       children: [
-                        getRowValue(
-                          value: 'Inflow',
-                          svgImageName: 'arrow_right',
-                        ),
-                        getRowValue(
-                          value: 'Outflow',
-                          svgImageName: 'arrow_left',
-                        ),
-                        getRowValue(
-                          value: 'Monthly Surplus/Deficit',
-                          svgImageName: 'monthly_surplus',
-                        ),
-                        getRowValue(
-                          value: 'Cumulative Surplus/Deficit',
-                          svgImageName: 'cumulative_surplus',
-                        ),
+                        getRowValue(value: 'Inflow', svgImageName: 'arrow_right'),
+                        getRowValue(value: 'Outflow', svgImageName: 'arrow_left'),
+                        getRowValue(value: 'Monthly Surplus/Deficit', svgImageName: 'monthly_surplus'),
+                        getRowValue(value: 'Cumulative Surplus/Deficit', svgImageName: 'cumulative_surplus'),
                       ],
                     ),
                     title: 'Indicators',
                   );
                 },
                 icon: Icon(MdiIcons.informationOutline),
-              )
-            ],
-            title: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              AdaptiveText(
-                'Report',
-                style: TextStyle(fontSize: 17),
               ),
-              Flexible(
-                child: Row(
-                  children: [
-                    Text(
-                      ' (',
-                      style: TextStyle(fontSize: 17),
-                    ),
-                    AdaptiveText(
-                      selectedSubSector.toString(),
-                      style: TextStyle(fontSize: 17),
-                    ),
-                    Text(
-                      ')',
-                      style: TextStyle(fontSize: 17),
-                    ),
-                  ],
+            ],
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                AdaptiveText('Report', style: TextStyle(fontSize: 17)),
+                Flexible(
+                  child: Row(
+                    children: [Text(' (', style: TextStyle(fontSize: 17)), AdaptiveText(selectedSubSector.toString(), style: TextStyle(fontSize: 17)), Text(')', style: TextStyle(fontSize: 17))],
+                  ),
                 ),
-              )
-            ]),
+              ],
+            ),
           ),
-          floatingActionButton: budgetExportDataModel.isEmpty
-              ? Container(
-                  height: 1,
-                  width: 1,
-                )
-              : Material(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  color: Colors.yellow[800],
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    splashColor: Colors.grey,
-                    hoverColor: Colors.grey,
-                    onTap: _exportDataToExcel,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          RotatedBox(
-                            quarterTurns: 1,
-                            child: Icon(
-                              Icons.import_export,
-                              size: 30,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 6,
-                          ),
-                          AdaptiveText(
-                            'Export Report',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                          )
-                        ],
+          floatingActionButton:
+              budgetExportDataModel.isEmpty
+                  ? Container(height: 1, width: 1)
+                  : Material(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    color: Colors.yellow[800],
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      splashColor: Colors.grey,
+                      hoverColor: Colors.grey,
+                      onTap: _exportDataToExcel,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            RotatedBox(quarterTurns: 1, child: Icon(Icons.import_export, size: 30)),
+                            SizedBox(width: 6),
+                            AdaptiveText('Export Report', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
           body: Padding(
             padding: const EdgeInsets.only(top: 23.0),
             child: Container(
@@ -390,32 +328,27 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
                 child: Column(
                   children: <Widget>[
                     getSearchWidget(),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) => Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: InfoCard(
-                                budgetData: budgetExportDataModel[index],
-                                transactionData: transcationExportDataModel[index],
-                              ),
-                            ),
-                        separatorBuilder: (context, index) => SizedBox(
-                              height: 0,
-                            ),
-                        itemCount: budgetExportDataModel.length),
-                    SizedBox(
-                      height: 15,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder:
+                          (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: InfoCard(budgetData: budgetExportDataModel[index], transactionData: transcationExportDataModel[index]),
+                          ),
+                      separatorBuilder: (context, index) => SizedBox(height: 0),
+                      itemCount: budgetExportDataModel.length,
                     ),
+                    SizedBox(height: 15),
                   ],
                 ),
               ),
             ),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 
   getRowValue({
@@ -431,15 +364,8 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
         children: [
           // if (svgImageName != null)
           SvgPicture.asset('assets/images/$svgImageName.svg', width: 18, color: Colors.black),
-          SizedBox(
-            width: 5,
-          ),
-          Flexible(
-            child: AdaptiveText(
-              value,
-              style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w400),
-            ),
-          )
+          SizedBox(width: 5),
+          Flexible(child: AdaptiveText(value, style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w400))),
         ],
       ),
     );
@@ -449,7 +375,7 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
     if (data.isEmpty)
       return [
         [0.0, 0.0],
-        [0.0, 0.0]
+        [0.0, 0.0],
       ];
     double budgetinflow = 0.0;
     double budgetoutflow = 0.0;
@@ -468,20 +394,16 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
     });
     return [
       [budgetoutflow, budgetinflow],
-      [tranasctionoutflow, transactioninflow]
+      [tranasctionoutflow, transactioninflow],
     ];
   }
 
   setExcelHeading(String sheet, Excel excel) {
-    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), "Date");
-    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0), "Inflow Project1ion");
-    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "OutFlow Projection");
-    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0), "Monthly Surplus/Deficit");
-    excel.updateCell(
-      sheet,
-      CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: 0),
-      "Cumulative Surplus/Deficit",
-    );
+    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), TextCellValue("Date"));
+    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0), TextCellValue("Inflow Project1ion"));
+    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), TextCellValue("OutFlow Projection"));
+    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0), TextCellValue("Monthly Surplus/Deficit"));
+    excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: 0), TextCellValue("Cumulative Surplus/Deficit"));
   }
 
   _exportDataToExcel() async {
@@ -498,45 +420,20 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
       element.toMap().forEach((key, value) {
         switch (key) {
           case 'date':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'inflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'outflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
 
             break;
           case 'inflowMINUSoutflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'cf':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           default:
         }
@@ -555,45 +452,20 @@ class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
       element.toMap().forEach((key, value) {
         switch (key) {
           case 'date':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'inflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'outflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
 
             break;
           case 'inflowMINUSoutflow':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           case 'cf':
-            excel.updateCell(
-              sheet,
-              CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row),
-              value,
-              cellStyle: CellStyle(textWrapping: TextWrapping.WrapText),
-            );
+            excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row), value, cellStyle: CellStyle(textWrapping: TextWrapping.WrapText));
             break;
           default:
         }
